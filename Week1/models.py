@@ -36,6 +36,7 @@ class User(db.Model):
     username = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
     # Configuration for Users auction Items
+    # When add the below line, everything is fucked up (And the line 54 too)
     auction_items = db.relationship('Item', backref='owner')
     # Configuration for Users bid Items
     # bid = db.relationship("Bid", secondary=bid_table, backref=db.backref("users",lazy=True))
@@ -50,6 +51,7 @@ class Item(db.Model):
     description = db.Column(db.String, nullable=False)
     start_time = db.Column(db.DateTime, default=datetime.utcnow)
     # Configuration for User auction Items
+    # When add the below line, everything is fucked up
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     # Configuration for Bid-Item
     # bid = db.relationship("Bid", backref=db.backref("item", lazy=True))

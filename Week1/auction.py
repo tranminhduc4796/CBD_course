@@ -13,8 +13,11 @@ print(User.query.all())
 # db.session.delete(User.query.filter_by(username='guest_1').first)
 
 # Step 2: 1 user auction a baseball
-# item_1 = Item(name="baseball", owner_id=guest_1)
-# db.session.add(item_1)
-# db.session.commit()
-# print(Item.query.all())
+# The below line get an error
+#########
+item_1 = Item(name="baseball", description='ABC', owner=guest_1)
+db.session.add(item_1)
+db.session.commit()
+print(Item.query.all())
+#########
 # Step 3: 2 user place bids on the baseball
