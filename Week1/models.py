@@ -1,13 +1,13 @@
-from flask import Flask, render_template, request
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Column, Integer, DateTime, Float
 from datetime import datetime
 import os
 
 
 file_path = os.path.abspath(os.getcwd()) + "/test.db"
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URL'] = 'sqlite:///' + file_path
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + file_path
 db = SQLAlchemy(app)
 """RELATION IN SQL"""
 # Many to one: Foreign key only on many side
@@ -16,6 +16,7 @@ db = SQLAlchemy(app)
 
 """INITIALIZE TABLE FOR MANY-MANY RELATIONS"""
 # Auction Table: Users auction many items
+"""
 auction_table = db.Table('auction_table',
                          Column('item_id', Integer, db.ForeignKey(
                              'item.id'), primary_key=True),
@@ -27,45 +28,44 @@ bid_table = db.Table('bid_table',
                          'bid.id'), primary_key=True),
                      Column('user_id', Integer, db.ForeignKey(
                          'user.id'), primary_key=True))
-
-
-class Item(db.Model):
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    start_time = Column(DateTime, default=datetime.utcnow)
-    # Configuration for Bid-Item
-    bid = db.relationship("Bid", backref=db.backref("item", lazy=True))
-    # Configuration for Users auction Items
-    auction_user = db.relationship(
-        "User", secondary=auction_table, backref=db.backref("items", lazy=True))
-
-    def __repr__(self):
-        return '<Item %r>' % self.name
+"""
 
 
 class User(db.Model):
-    id = Column(Integer, primary_key=True)
-    username = Column(String, nullable=False)
-    password = Column(String, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False)
+    password = db.Column(db.String, nullable=False)
     # Configuration for Users auction Items
-    auction_item = db.relationship(
-        "Item", secondary=auction_table, backref=db.backref("users",lazy=True))
+    auction_items = db.relationship('Item', backref='owner')
     # Configuration for Users bid Items
-    bid = db.relationship("Bid", secondary=bid_table, backref=db.backref("users",lazy=True))
+    # bid = db.relationship("Bid", secondary=bid_table, backref=db.backref("users",lazy=True))
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r with id %r>' % (self.username, self.id)
+
+
+class Item(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, nullable=False)
+    start_time = db.Column(db.DateTime, default=datetime.utcnow)
+    # Configuration for User auction Items
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    # Configuration for Bid-Item
+    # bid = db.relationship("Bid", backref=db.backref("item", lazy=True))
+
+    def __repr__(self):
+        return '<Item %r with id %r>' % (self.name, self.id)
 
 
 class Bid(db.Model):
-    id = Column(Integer, primary_key=True)
-    price = Column(Float, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    price = db.Column(db.Float, nullable=False)
     # Configuration for Bid-Item
-    item_id = Column(Integer, db.ForeignKey('item.id'))
-    item = db.relationship("Item", uselist=False, backref=db.backref("bid", lazy=True))
+    # item_id = Column(Integer, db.ForeignKey('item.id'))
+    # item = db.relationship("Item", uselist=False, backref=db.backref("bid", lazy=True))
     # Configuration for Users bid Items
-    user = db.relationship("User", secondary=bid_table, backref=db.backref("bids", lazy=True))
+    # user = db.relationship("User", secondary=bid_table, backref=db.backref("bids", lazy=True))
 
     def __repr__(self):
         return '<Bid %r>' % self.price
