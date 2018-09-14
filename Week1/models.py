@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + file_path
 db = SQLAlchemy(app)
 """RELATION IN SQL"""
-# Many to one: Foreign key only on many side
+# Many to one: Foreign key only on the many side
 # Many to many: 2 Foreign key with an associated table
 # One to one: uselist = False
 
@@ -30,16 +30,16 @@ bid_table = db.Table('bid_table',
                          'user.id'), primary_key=True))
 """
 
+#Relation in this database#
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
-    # Configuration for Users auction Items
-    # When add the below line, everything is fucked up (And the line 54 too)
+    # Configuration for User auction Items (One-Many)
     auction_items = db.relationship('Item', backref='owner')
     # Configuration for Users bid Items
-    # bid = db.relationship("Bid", secondary=bid_table, backref=db.backref("users",lazy=True))
+    bids = db.relationship('Bid', backref='payer')
 
     def __repr__(self):
         return '<User %r with id %r>' % (self.username, self.id)
@@ -50,24 +50,23 @@ class Item(db.Model):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     start_time = db.Column(db.DateTime, default=datetime.utcnow)
-    # Configuration for User auction Items
-    # When add the below line, everything is fucked up
+    # Configuration for User auction Items(One-Many)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     # Configuration for Bid-Item
-    # bid = db.relationship("Bid", backref=db.backref("item", lazy=True))
+    bids = db.relationship("Bid", uselist=False, backref='item')
 
     def __repr__(self):
-        return '<Item %r with id %r>' % (self.name, self.id)
+        return '<Item %r owner_id %r>' % (self.name, self.id)
 
 
 class Bid(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     price = db.Column(db.Float, nullable=False)
-    # Configuration for Bid-Item
-    # item_id = Column(Integer, db.ForeignKey('item.id'))
+    # Configuration for Bid-Item(One-One)
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
     # item = db.relationship("Item", uselist=False, backref=db.backref("bid", lazy=True))
-    # Configuration for Users bid Items
-    # user = db.relationship("User", secondary=bid_table, backref=db.backref("bids", lazy=True))
+    # Configuration for User place Bids(One-Many)
+    payer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return '<Bid %r>' % self.price
+        return '[Bid price: %r, payer_id: %r]' % (self.price, self.payer_id)
