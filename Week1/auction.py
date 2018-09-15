@@ -26,4 +26,5 @@ bid2 = Bid(price=200, payer=guest_3, item= item_1)
 db.session.add(bid1)
 db.session.add(bid2)
 db.session.commit()
+print(Bid.query.all())
 item_1.bids

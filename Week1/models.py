@@ -53,7 +53,7 @@ class Item(db.Model):
     # Configuration for User auction Items(One-Many)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     # Configuration for Bid-Item
-    bids = db.relationship("Bid", uselist=False, backref='item')
+    bid = db.relationship("Bid", uselist=False, backref='item')
 
     def __repr__(self):
         return '<Item %r owner_id %r>' % (self.name, self.id)
@@ -69,4 +69,4 @@ class Bid(db.Model):
     payer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return '[Bid price: %r, payer_id: %r]' % (self.price, self.payer_id)
+        return '[Bid price: %r payer_id: %r item_id: %r]' % (self.price, self.payer_id, self.item_id)
