@@ -67,6 +67,6 @@ class Bid(db.Model):
     # item = db.relationship("Item", uselist=False, backref=db.backref("bid", lazy=True))
     # Configuration for User place Bids(One-Many)
     payer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
+    
     def __repr__(self):
         return '[Bid price: %r payer_id: %r item_id: %r]' % (self.price, self.payer_id, self.item_id)

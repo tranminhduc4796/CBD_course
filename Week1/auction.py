@@ -27,4 +27,9 @@ db.session.add(bid1)
 db.session.add(bid2)
 db.session.commit()
 print(Bid.query.all())
-item_1.bids
+# Step 4: Find the highest bid on baseball
+highest_bid = Bid.query.filter_by(item_id = 1).order_by(Bid.price)[-1]
+# Step 5: Update the item_1 with the highest price
+item_1.bid = highest_bid
+db.session.commit()
+print(item_1.bid)
